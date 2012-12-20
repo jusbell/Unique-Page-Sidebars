@@ -245,8 +245,23 @@ function ups_sidebar_do_meta_box( $post, $metabox ) {
 function ups_sidebars_validate( $input ) {
 	if ( isset( $input['add_sidebar'] ) ) {
 		$sidebars = get_option( 'ups_sidebars' );
-		if ( '' != $input['add_sidebar'] ) {
-			$sidebar_num = count( $sidebars ) + 1;
+		if ( ! empty( $input['add_sidebar'] ) ) {
+
+			$sidebar_num = get_option('ups_sidebars_last_id', -1);
+			if ($sidebar_num < 0){
+				// backward compatibility for existing sidebars
+				if ( is_array( $sidebars ) ) {
+					$last_id = end(array_keys($sidebars));
+					$last_num = end(explode('-', $last_id));
+					$sidebar_num = intval($last_num);
+				} else {
+					$sidebar_num = 0;
+				}
+			}
+
+			$sidebar_num += 1;
+			update_option('ups_sidebars_last_id', $sidebar_num);
+
 			$sidebars['ups-sidebar-' . $sidebar_num] = array(
 				'name' => esc_html( $input['add_sidebar'] ),
 				'description' => '',
